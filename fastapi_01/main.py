@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import os
+import argparse
 
 app = FastAPI(
     title="FastAPI Practice",
@@ -35,6 +36,16 @@ async def read_root(request: Request):
     }
 
 
+def main():
+    parser = argparse.ArgumentParser(description="Run the FastAPI app with uvicorn")
+    parser.add_argument("--host", default=os.environ.get("HOST", "0.0.0.0"), help="Host to bind to")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", 8000)), help="Port to listen on")
+    default_reload = os.environ.get("RELOAD", "true").lower() in ("1", "true", "yes")
+    parser.add_argument("--reload", action="store_true", default=default_reload, help="Enable auto-reload (dev)")
+    args = parser.parse_args()
+
+    uvicorn.run(app, host=args.host, port=args.port, reload=args.reload)
+
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+    main()
